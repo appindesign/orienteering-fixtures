@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html>
+
+<!--Part 1 CSS---------------------------------------->
+<style>
+    * {font-family: arial;}
+    
+    /* Table format */
+    table{
+        border-bottom: 0px;
+        border-left: 0px;
+        border-right: 0px;
+        border-top: 0px;
+        border-collapse: collapse;
+    }
+    th {
+        background-color: #cc0000;
+        color: white;  
+        text-align: left;
+    }
+    th, td {
+        border-bottom: 1px solid #ddd;
+        border-left: 0px;
+        border-right: 0px;
+        border-top: 0px;
+        padding: 8px;
+    }
+    
+    /* Background colour for each level of event */
+    .major {
+        background-color:#B8860B;
+        color:#ffffff;
+    }
+    .national {
+        background-color:#b71c1c;
+        color:#ffffff;
+    }
+    .regional {
+        background-color:#ffebee;
+    }
+    .local {
+        background-color:#eeeeee;
+    }
+    .secondarytext{
+        color: #bbbbbb;   
+    }
+    
+    /* Heading level one format */
+    h1   {color: #cc0000;}
+    
+    /* Hyperlink format */
+    a {
+        text-decoration:none;
+        color:blue;
+    }  
+    
+    a.national {
+        color:#ffcdd2;
+    }    
+    
+    /* Widescreen v narrow screen font size */
+    @media screen and (min-width: 1001px) {
+      body {
+        font-size: 16px;
+      }
+    }
+
+    @media screen and (max-width: 1000px) {
+      body {
+        font-size: 32px;
+      }   
+    }
+</style>
+
+<!--Part 2a HTML for "Other Fixtures"--------------------------------------->
+<body>
+    <h1>NI Orienteering Fixture List</h1>
+
+    <!--Links to other fixtures-->
+    <span class="secondarytext">Other Fixtures:</span>
+    <a href="http://www.orienteering.ie/fixture">IOA</a>
+    <span class="secondarytext"> | </span> 
+    <a href="http://www.jros.org.uk/">JROS</a>
+    <span class="secondarytext"> | </span> 
+    BOF <a href="http://www.britishorienteering.org.uk/index.php?pg=event&evt_level%5B%5D=1&bFilter=Filter">majors</a> &middot 
+    <a href="http://www.britishorienteering.org.uk/index.php?pg=event&bFilter=Filter">all </a> &middot 
+    <a href="https://www.britishorienteering.org.uk/index.php?pg=activity&bFilter=Filter">activities</a>
+    <span class="secondarytext"> | </span>  
+    World 
+    <a href="http://eventor.orienteering.org/Events">elite</a> &middot
+    <a href="http://cal.worldofo.com/">majors</a> &middot
+    <a href="http://eventor.orienteering.org/Federations">other</a>
+
+    <p id="fixtureTable"></p>
+
+
+<script>
+    //--Part 2b Javascript to fetch the data---------------------------------
+    
+    // Prepare the request for data.
+    var xmlhttp = new XMLHttpRequest();
+
+    // url for the request.
+    var url = "https://www.britishorienteering.org.uk/fixturesjson.php?assoc=NIOA";
+    // var url = "https://cuoc.org.uk/api/calendar/items/?when=future&type=training";
+    // var url = "http://www.britishorienteering.org.uk/fixturesjson.php?assoc=NIOA&jsonp=test";
+    
+    // On return of data parse it as JSON and pass it on to be displayed.
+    xmlhttp.onreadystatechange = function() {
+        if (this.readyState == 4 && this.status == 200) {
+            var myArr = JSON.parse(this.responseText);
+            displayFixtures(myArr);
+        }
+    };
+    
+    // Execute the request.
+    xmlhttp.open("GET", url, true);
+    xmlhttp.send();
+    
+    //--Part 2c Javascript to construct the html for the table of fixtures-----------
+    function displayFixtures(fixtureArray) {
+        var fixtureIndex;   // An index used to cycle through the fixtures in the data.
+        var dayNumber;  // The number of the day in the month of the event.
+        var dayName;    // The name of the day of the fixture.
+        var month;      // The month of the fixture.
+        var year;       // The year of the fixture.
+        var trFormat;   // The format to be used for a table row.
+        var oclub;      // The link to the club hosting the event.
+        var html;       // The html for the fixture table.
+
+        // Create the fixture table header
+        html="<table>"+
+            "<th width=25%>Date</th>" +
+            "<th width=20%>Venue</th>" +
+            "<th width=50%>Event</th>" +
+            "<th width=1%>Club</th>";
+    
+        // Construct the fixture table body
+        for (fixtureIndex in fixtureArray) {
+            
+            // Prepare date fields for use in constructing the html.
+            fixtureDate = new Date(fixtureArray[fixtureIndex].date);
+            dayNumber = fixtureDate.getDate();
+            dayName = fixtureDate.toString().split(' ')[0];
+            month = fixtureDate.toString().split(' ')[1];
+            year = fixtureDate.toString().split(' ')[3];
+            
+            // Prepare the club link.
+            switch (fixtureArray[fixtureIndex].club){
+                case "LVO": oclub="<a href='http://lvo.org.uk/'><img border='0' alt='LVO' src='lvo.jpg' width='40'>";
+                    break;                
+                case "FERMO": oclub="<a href='http://fermoblog.wordpress.com/'><img border='0' alt='FERMO' src='fermo.png' width='40'>";
+                    break;
+                case "NWOC": oclub="<a href='http://nwoc.info/'><img border='0' alt='lvo' src='nwoc.jpg' width='40'>";
+                    break;
+                default: oclub="";
+            }
+
+            // Prepare the fixture url
+            if (fixtureArray[fixtureIndex].event_specific_website != "") {
+                eventUrl = fixtureArray[fixtureIndex].event_specific_website
+            } else {
+                if (fixtureArray[fixtureIndex].level == "Activity") {
+                    eventUrl = "https:// www.britishorienteering.org.uk/index.php?pg=activity&activity=" + fixtureArray[fixtureIndex].number;
+                } else {
+                    eventUrl = "https://www.britishorienteering.org.uk/index.php?pg=event&event=" + fixtureArray[fixtureIndex].number;
+                }
+                }            
+       
+            // Prepare the event level colour banding
+            switch (fixtureArray[fixtureIndex].level){
+                case "Major": trFormat = "<tr class='major'>";
+                    break;
+                case "National": trFormat = "<tr class='national'>";
+                    break;
+                case "Regional": trFormat = "<tr class='regional'>";          
+                    break;        
+                case "Local": trFormat = "<tr class='local'>";
+                    break;
+                default: trFormat = "<tr>";
+            }
+            
+            // Prepare the event level link class
+            switch (fixtureArray[fixtureIndex].level){
+                case "Major": aFormat = "<a class='major' href='";
+                    break;
+                case "National": aFormat = "<a class='national' href='";
+                    break;
+                default: aFormat = "<a href='";
+                    break;
+            }
+            
+            // Now build the html.
+            html+= 
+            trFormat +
+            "<td>" + dayNumber + " " + month  + " " + year + "<br>" +
+            "<div class='secondarytext'>" + dayName + "</div>" + "</td>" +  
+            "<td>" + fixtureArray[fixtureIndex].venue + "<br>" +
+            "<div class='secondarytext'>" + fixtureArray[fixtureIndex].nearest_town + "</div>" + "</td>" + 
+            "<td>" + aFormat + eventUrl + "'>" + fixtureArray[fixtureIndex].title + "</a>" +"</td>" +
+            "<td>" + oclub + "</td>" +
+            "</tr>"
+        }   
+        html+="</table>"
+        
+        // Present the fixture table
+        document.getElementById("fixtureTable").innerHTML = html;       
+    }
+</script>
+
+<!--Part 3 HTML for explanatory text--------------------------------------->
+<h2>Key</h2>
+<h3>Colour bands</h3>
+<ul>
+    <li>White = "activity" <span class="secondarytext"> usually training </span></li>
+    <li>Grey = "local"<span class="secondarytext"> usually a club event</span></li>
+    <li>Pink = "regional"<span class="secondarytext"> usually a colour series </span></li>
+    <li>Red = "national"<span class="secondarytext"> for example home international</span></li>
+    <li>Gold = "major"<span class="secondarytext"> for example British Championships</span></li>
+</ul>
+<h3>Links</h3>
+<ul>
+    <li>Event link<span class="secondarytext"> takes you to the page for the fixture</span></li>
+    <li>Club logo<span class="secondarytext"> takes you to the host club's website</span></li>
+</ul>
+
+</body>
+</html>
