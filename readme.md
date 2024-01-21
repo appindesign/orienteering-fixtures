@@ -1,5 +1,5 @@
 # Unified Schedule of Fixtures for an Association(s) within the British Orienteering Federation
-Shared here is the code used by the Northern Ireland Orienteering Association to create a unified schedule of events for all the clubs in the association. The result of the code may be seen [here](https://www.niorienteering.org.uk/fixtures/). The fixture list uses the British Orienteering Federation database as its source - specifically the event date, venue, event specific website and club fields.:)
+Shared here is the code used by the Northern Ireland Orienteering Association to create a unified schedule of events for all the clubs in the association. The result of the code may be seen [here](https://www.niorienteering.org.uk/fixtures/). The fixture list uses the British Orienteering Federation database as its source - specifically the event date, venue, event specific website and club fields.
 
 The code could be modified (without any coding experience) by other associations to create a unified schedule of their fixtures (or indeed all BOF fixtures or multiple associations). You are welcome to use it. If you wish to customise the code, the documentation in this "readme" signals where customisation may be required by the word *customisation* in italics.
 
